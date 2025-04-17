@@ -19,18 +19,46 @@ void delete_rbtree(rbtree *t) {
 }
 
 void right_rotate(rbtree* t, node_t *x){
-
+  node_t* node = rbtree_find(t, x->key);
+  node_t* y = node->left;
+  x->left = y->right;
+  if(y->right != t->nil){
+    y->right->parent = x;
+  }
+  y->parent = x->parent;
+  if(x->parent == t->nil)
+    t->root = y;
+  else if(x->parent->left == x)
+    x->parent->left = y;
+  else
+    x->parent->right = y;
+  y->right = x;
+  x->parent = y;
 }
 node_t *rbtree_insert(rbtree *t, const key_t key) {
-  // TODO: implement insert
-  
-  return t->root;
+
+  node_t* node = (node_t*)malloc(sizeof(node_t));
+  node->color = RBTREE_RED;
+  node->key = key;
+
+  return node; // 바꿔야함
+  // TODO: implement insert  
+  // return t->root;
 }
 
-node_t *rbtree_find(const rbtree *t, const key_t key) {
+node_t *rbtree_find(const rbtree *t, const key_t key) {  
+  node_t* cur = t->root;
   
+  while(cur != t->nil || cur->key == key){
+    if(key < cur->key)
+      cur = cur->left;
+    else 
+      cur = cur->right;
+  }
+  
+  return cur;
   // TODO: implement find
-  return t->root;
+  // return t->root;
 }
 
 node_t *rbtree_min(const rbtree *t) {
