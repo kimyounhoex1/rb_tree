@@ -21,7 +21,7 @@ node_t *rbtree_insert(rbtree *t, const key_t key) {
   return t->root;
   "test"
 }
-
+qwerqwer
 void right_rotate(rbtree* t, node_t *x){
 }
 
