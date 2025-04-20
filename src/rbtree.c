@@ -19,9 +19,7 @@ void delete_rbtree(rbtree *t) {
 node_t *rbtree_insert(rbtree *t, const key_t key) {
   // TODO: implement insert  
   return t->root;
-  "test"
 }
-qwerqwer
 void right_rotate(rbtree* t, node_t *x){
 }
 
