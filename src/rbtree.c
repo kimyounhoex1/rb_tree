@@ -4,6 +4,7 @@
 
 rbtree *new_rbtree(void) {
   rbtree *p = (rbtree *)calloc(1, sizeof(rbtree));
+
   // TODO: initialize struct if needed
   return p;
 }
@@ -13,15 +14,30 @@ void delete_rbtree(rbtree *t) {
   free(t);
 }
 
+// for insert procedure
+//---------------------------------------------------------
 node_t *rbtree_insert(rbtree *t, const key_t key) {
-  // TODO: implement insert
+  // TODO: implement insert  
   return t->root;
 }
 
-node_t *rbtree_find(const rbtree *t, const key_t key) {
+void right_rotate(rbtree* t, node_t *x){
+}
+
+void left_rotate(rbtree* t, node_t *x){
+}
+
+void rb_insert_fixup(rbtree *t, node_t *node){
+}
+
+//---------------------------------------------------------
+
+node_t *rbtree_find(const rbtree *t, const key_t key) {  
   // TODO: implement find
   return t->root;
 }
+
+
 
 node_t *rbtree_min(const rbtree *t) {
   // TODO: implement find
