@@ -8,10 +8,10 @@ rbtree *new_rbtree(void) {
   node_t* nil = (node_t*)malloc(sizeof(node_t));
   nil->color = RBTREE_BLACK;
 
-  // 꼭 추가해야 함
   nil->left = nil;
   nil->right = nil;
   nil->parent = nil;
+  // 이거 추가 안하니까 segment fault남.
 
   p->nil = nil;
   p->root = nil;
@@ -26,6 +26,16 @@ void delete_rbtree(rbtree *t) {
   free(t);
 }
 
+void rb_transplant(rbtree *t, node_t *x, node_t *y){
+  if(x->parent = t->nil)
+    t->root = y;
+  else if(x = x->parent->left){
+    x->parent->left = y;
+  } else
+    x->parent->right = y;
+  
+  y->parent = x->parent;
+}
 //---------------------------------------------------------
 
 // for insert procedure
