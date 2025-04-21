@@ -19,11 +19,14 @@ rbtree *new_rbtree(void) {
   // TODO: initialize struct if needed
   return p;
 }
-
+// for deletion procedure
+//---------------------------------------------------------
 void delete_rbtree(rbtree *t) {
   // TODO: reclaim the tree nodes's memory
   free(t);
 }
+
+//---------------------------------------------------------
 
 // for insert procedure
 //---------------------------------------------------------
@@ -122,11 +125,11 @@ void rb_insert_fixup(rbtree *t, node_t *node){
       else{
         // ii-1) 삽입한 노드가 RL케이스인 경우  
         if(node == node->parent->left){
-        // printf("%d, case 2, LL Case\n",node->key);
+        // printf("%d, case 2, RL Case\n",node->key);
         node = node->parent;
         right_rotate(t, node);
         }
-        // printf("%d, case 3, LL Case\n",node->key);
+        // printf("%d, case 3, RR Case\n",node->key);
         // ii-1) 삽입한 노드가 RR케이스인 경우
         node->parent->color = RBTREE_BLACK;
         node->parent->parent->color = RBTREE_RED;
@@ -144,7 +147,7 @@ void rb_insert_fixup(rbtree *t, node_t *node){
         }
       
       else {
-        if(node == node->parent->left){
+        if(node == node->parent->right){
           node = node->parent;
           left_rotate(t, node);
           }
@@ -197,24 +200,30 @@ void print_tree(rbtree *t, node_t* node){
   print_tree(t, node->left);
   print_tree(t, node->right);
 }
-// int main() {
-//   rbtree *t = new_rbtree();
+int main() {
+  rbtree *t = new_rbtree();
+  //10, 5, 8, 34, 67, 23, 156, 24, 2, 12
+  rbtree_insert(t, 10);
+  rbtree_insert(t, 5);
+  rbtree_insert(t, 8);
+  rbtree_insert(t, 34);
+  rbtree_insert(t, 67);
+  rbtree_insert(t, 23);
+  rbtree_insert(t, 156);
+  rbtree_insert(t, 24);
+  rbtree_insert(t, 2);
+  rbtree_insert(t, 12);
 
-//   rbtree_insert(t, 10);
-//   rbtree_insert(t, 20);
-//   rbtree_insert(t, 30);
-//   rbtree_insert(t, 15);
-
-//   // 중위 순회 출력으로 key 정렬 확인
-//   // node_t* cur = t->root;
-//   // printf("Root: %d, Color: %s\n", cur->key, cur->color == RBTREE_BLACK ? "BLACK" : "RED");
-//   // printf("Left: %d, Right: %d\n", cur->left->key, cur->right->key);
-//   // if (cur->left != t->nil)
-//   //   printf("Left: %d\n", cur->left->key);
-//   // if (cur->right != t->nil)
-//   // printf("Right: %d\n", cur->right->key);
-//   print_tree(t, t->root);
+  // 중위 순회 출력으로 key 정렬 확인
+  // node_t* cur = t->root;
+  // printf("Root: %d, Color: %s\n", cur->key, cur->color == RBTREE_BLACK ? "BLACK" : "RED");
+  // printf("Left: %d, Right: %d\n", cur->left->key, cur->right->key);
+  // if (cur->left != t->nil)
+  //   printf("Left: %d\n", cur->left->key);
+  // if (cur->right != t->nil)
+  // printf("Right: %d\n", cur->right->key);
+  print_tree(t, t->root);
 
 
-//   return 0;
-// }
+  return 0;
+}
