@@ -15,28 +15,23 @@ rbtree *new_rbtree(void) {
 
   p->nil = nil;
   p->root = nil;
-  return p;
   // TODO: initialize struct if needed
   return p;
 }
-// for deletion procedure
-//---------------------------------------------------------
-void delete_rbtree(rbtree *t) {
-  // TODO: reclaim the tree nodes's memory
-  free(t);
+void free_node(rbtree *t, node_t* node){
+  if(node == t->nil)
+    return;
+  free_node(t, node->left);
+  free_node(t, node->right);
+  free(node);
 }
 
-void rb_transplant(rbtree *t, node_t *x, node_t *y){
-  if(x->parent = t->nil)
-    t->root = y;
-  else if(x = x->parent->left){
-    x->parent->left = y;
-  } else
-    x->parent->right = y;
-  
-  y->parent = x->parent;
+void delete_rbtree(rbtree *t) {
+  // TODO: reclaim the tree nodes's memory
+  free_node(t, t->root);
+  free(t);
+  // 노드를 전부다 삭제하는 과정이 필요하다.
 }
-//---------------------------------------------------------
 
 // for insert procedure
 //---------------------------------------------------------
@@ -69,7 +64,6 @@ node_t *rbtree_insert(rbtree *t, const key_t key) {
   node->left = t->nil;
   node->right = t->nil;
 
-  
   rb_insert_fixup(t, node);
     // case1: parent가 B이면 상관 없다. -> rb_insert에서 걸러진다.
   // TODO: implement insert  
@@ -109,7 +103,6 @@ void left_rotate(rbtree* t, node_t *x){
   y->parent = x->parent;  
   x->parent = y;
 }
-
 
 // case2: parent가 R인 경우
 void rb_insert_fixup(rbtree *t, node_t *node){
@@ -200,11 +193,69 @@ node_t *rbtree_max(const rbtree *t) {
 
   return cur;
 }
+// for deletion procedure
+//---------------------------------------------------------
+node_t* tree_minimun(rbtree* t, node_t* node){
+  node_t* cur = rbtree_find(t, node->key);
+  if(cur->right == t->nil){
+    return cur;
+  }
+  cur = cur->right;
+  node_t* prev;
+  while(cur != t->nil){
+    prev = cur;
+    cur = cur->left;
+  }
+  return prev;
+}
+
+void rb_transplant(rbtree *t, node_t *x, node_t *y){
+  if(x->parent == t->nil)
+    t->root = y;
+  else if(x == x->parent->left){
+    x->parent->left = y;
+  } else
+    x->parent->right = y;
+  
+  y->parent = x->parent;
+}
 
 int rbtree_erase(rbtree *t, node_t *p) {
+  node_t* rladbsgh = p;
+  // color_t saved_color = rladbsgh->color;
+  // 1. 2 child -> change minimun node in right subtree and then deletion
+  if(p->left != t->nil && p->right != t->nil){
+    rladbsgh = tree_minimun(t, p);
+    // saved_color = rladbsgh->color;
+    rb_transplant(t, p, rladbsgh);
+  }
+
+  // 2. 1 child -> current node deletion and insertion child node
+
+  // 3. 0 child -> just deletion
+
+
+  // if(p->left == t->nil || p->right == t->nil){
+  //   if(p->left == t->nil && p->right == t->nil){
+  //     if(p = p->parent->left)
+  //       p->parent->left = t->nil;
+  //     else
+  //       p->parent->right = t->nil;
+  //   }
+  // }
+  // else {
+  //   node_t* max = tree_minimun(t, p);
+  // }
+  // 만약, p의 자식이 2개이상인 경우
+  
   // TODO: implement erase
   return 0;
 }
+
+
+
+
+//---------------------------------------------------------
 
 int rbtree_to_array(const rbtree *t, key_t *arr, const size_t n) {
   // TODO: implement to_array
@@ -218,30 +269,21 @@ void print_tree(rbtree *t, node_t* node){
   print_tree(t, node->left);
   print_tree(t, node->right);
 }
-int main() {
-  rbtree *t = new_rbtree();
-  //10, 5, 8, 34, 67, 23, 156, 24, 2, 12
-  rbtree_insert(t, 10);
-  rbtree_insert(t, 5);
-  rbtree_insert(t, 8);
-  rbtree_insert(t, 34);
-  rbtree_insert(t, 67);
-  rbtree_insert(t, 23);
-  rbtree_insert(t, 156);
-  rbtree_insert(t, 24);
-  rbtree_insert(t, 2);
-  rbtree_insert(t, 12);
+// int main() {
+//   rbtree *t = new_rbtree();
+//   //10, 5, 8, 34, 67, 23, 156, 24, 2, 12
+//   rbtree_insert(t, 10);
+//   rbtree_insert(t, 5);
+//   rbtree_insert(t, 8);
+//   rbtree_insert(t, 34);
+//   rbtree_insert(t, 67);
+//   rbtree_insert(t, 23);
+//   rbtree_insert(t, 156);
+//   rbtree_insert(t, 24);
+//   rbtree_insert(t, 2);
+//   rbtree_insert(t, 12);
 
-  // 중위 순회 출력으로 key 정렬 확인
-  // node_t* cur = t->root;
-  // printf("Root: %d, Color: %s\n", cur->key, cur->color == RBTREE_BLACK ? "BLACK" : "RED");
-  // printf("Left: %d, Right: %d\n", cur->left->key, cur->right->key);
-  // if (cur->left != t->nil)
-  //   printf("Left: %d\n", cur->left->key);
-  // if (cur->right != t->nil)
-  // printf("Right: %d\n", cur->right->key);
-  print_tree(t, t->root);
+//   print_tree(t, t->root);
 
-
-  return 0;
-}
+//   return 0;
+// }
