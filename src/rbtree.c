@@ -165,10 +165,14 @@ void rb_insert_fixup(rbtree *t, node_t *node){
 node_t *rbtree_find(const rbtree *t, const key_t key) {  
   // TODO: implement find
   node_t* cur = t->root;
+
   while (cur != t->nil) {
-    if (key == cur->key) return cur;
-    else if (key < cur->key) cur = cur->left;
-    else cur = cur->right;
+    if (key == cur->key) 
+      return cur;
+    else if (key < cur->key) 
+      cur = cur->left;
+    else 
+      cur = cur->right;
   }
   return NULL;
 }
@@ -221,8 +225,12 @@ void rb_transplant(rbtree *t, node_t *x, node_t *y){
 
 int rbtree_erase(rbtree *t, node_t *p) { //화가나서 gpt한테 물어봄
   node_t *y = p;
-  // color_t y_color = y->color;
   node_t *x;
+
+  if(rbtree_find(t, p->key) == NULL){
+    
+  }
+  
   if(p->left == t->nil){
     x = p->right;
     rb_transplant(t, p, p->right);
@@ -233,7 +241,6 @@ int rbtree_erase(rbtree *t, node_t *p) { //화가나서 gpt한테 물어봄
   }
   else{
     y = tree_minimun(t, p->right);
-    // y_color = y->color;
     x = y->right;
     if(y != p->right){
       rb_transplant(t, y, y->right);
@@ -253,91 +260,163 @@ int rbtree_erase(rbtree *t, node_t *p) { //화가나서 gpt한테 물어봄
   // TODO: implement erase
   return 0;
 }
+void rb_deletion_fixup(rbtree *t, node_t *x) {
+  while (x != t->root && x->color == RBTREE_BLACK) {
+    if (x == x->parent->left) {
+      node_t *sibling = x->parent->right;
 
-void rb_deletion_fixup(rbtree *t, node_t* x){
-  node_t* sibling;
-  // if(x->parent == t->nil){
-  //   x = t->root;
-  // }
-  if(x == t->root){
-    return;
-  }
-  // doubly node is left
-  if(x == x->parent->left){
-    sibling = x->parent->right;
-    // case1, sibling is red
-    // change color and rotate
-    if(sibling->color == RBTREE_RED){
-      sibling->color = RBTREE_BLACK;
-      // sibling->parent->color = RBTREE_RED;
-      x->parent->color = RBTREE_RED;
-      // left_rotate(t, sibling->parent);
-      left_rotate(t, x->parent);
-      sibling = x->parent->right;
-    }
-    // case2, sibling is black
-    if(sibling->left->color == RBTREE_BLACK 
-      && sibling->right->color == RBTREE_BLACK){
+      // case 1: sibling이 RED
+      if (sibling->color == RBTREE_RED) {
+        sibling->color = RBTREE_BLACK;
+        x->parent->color = RBTREE_RED;
+        left_rotate(t, x->parent);
+        sibling = x->parent->right;  // 회전 후 다시 가져옴
+      }
+
+      // case 2: sibling과 그 자식들이 모두 BLACK
+      if (sibling->left->color == RBTREE_BLACK && sibling->right->color == RBTREE_BLACK) {
         sibling->color = RBTREE_RED;
-        //----------------------------------
         x = x->parent;
-        //----------------------------------
       }
-    else{
-      if(sibling->right->color == RBTREE_BLACK){
-        sibling->left->color = RBTREE_BLACK;
-        sibling->color = RBTREE_RED;
-        // right_rotate(t, sibling->parent);
-        right_rotate(t, sibling);
-        sibling = x->parent->right;
-      }
-      sibling->color = x->parent->color;
-      x->right->color = RBTREE_BLACK;
-      sibling->right->color = RBTREE_BLACK;
-      left_rotate(t, x->parent);
-      x = t->root;
-    }
-  }
-  
-  // doubly node is right
-  else {
-    sibling = x->parent->left;
-    // case1, sibling is red
-    // change color and rotate
-    if(sibling->color == RBTREE_RED){
-      sibling->color = RBTREE_BLACK;
-      // sibling->parent->color = RBTREE_RED;
-      x->parent->color = RBTREE_RED;
-      // left_rotate(t, sibling->parent);
-      right_rotate(t, x->parent);
-      sibling = x->parent->left;
-    }
-    // case2, sibling is black
-    if(sibling->right->color == RBTREE_BLACK 
-      && sibling->left->color == RBTREE_BLACK){
-        sibling->color = RBTREE_RED;
-        //----------------------------------
-        x = x->parent;
-        //----------------------------------
-      }
-    else{
-      if(sibling->left->color == RBTREE_BLACK){
+      else {
+        // case 3: sibling의 right가 BLACK, left는 RED
+        if (sibling->right->color == RBTREE_BLACK) {
+          sibling->left->color = RBTREE_BLACK;
+          sibling->color = RBTREE_RED;
+          right_rotate(t, sibling);
+          sibling = x->parent->right;
+        }
+
+        // case 4: sibling의 right가 RED
+        sibling->color = x->parent->color;
+        x->parent->color = RBTREE_BLACK;
         sibling->right->color = RBTREE_BLACK;
-        sibling->color = RBTREE_RED;
-        // right_rotate(t, sibling->parent);
-        left_rotate(t, sibling);
+        left_rotate(t, x->parent);
+        x = t->root;
+      }
+    }
+    else {
+      // x가 오른쪽 자식일 때 (위와 대칭)
+      node_t *sibling = x->parent->left;
+
+      if (sibling->color == RBTREE_RED) {
+        sibling->color = RBTREE_BLACK;
+        x->parent->color = RBTREE_RED;
+        right_rotate(t, x->parent);
         sibling = x->parent->left;
       }
-      sibling->color = x->parent->color;
-      x->left->color = RBTREE_BLACK;
-      sibling->left->color = RBTREE_BLACK;
-      right_rotate(t, x->parent);
-      x = t->root;
+
+      if (sibling->left->color == RBTREE_BLACK && sibling->right->color == RBTREE_BLACK) {
+        sibling->color = RBTREE_RED;
+        x = x->parent;
+      }
+      else {
+        if (sibling->left->color == RBTREE_BLACK) {
+          sibling->right->color = RBTREE_BLACK;
+          sibling->color = RBTREE_RED;
+          left_rotate(t, sibling);
+          sibling = x->parent->left;
+        }
+
+        sibling->color = x->parent->color;
+        x->parent->color = RBTREE_BLACK;
+        sibling->left->color = RBTREE_BLACK;
+        right_rotate(t, x->parent);
+        x = t->root;
+      }
     }
+  }
+  if(t->root->left == t->nil && t->root->right == t->nil){
+    t->root = t->nil;
   }
 
   x->color = RBTREE_BLACK;
 }
+
+// void rb_deletion_fixup(rbtree *t, node_t* x){
+//   node_t* sibling;
+//   // if(x->parent == t->nil){
+//   //   x = t->root;
+//   // }
+//   if(x == t->root){
+//     return;
+//   }
+//   // doubly node is left
+//   if(x == x->parent->left){
+//     sibling = x->parent->right;
+//     // case1, sibling is red
+//     // change color and rotate
+//     if(sibling->color == RBTREE_RED){
+//       sibling->color = RBTREE_BLACK;
+//       // sibling->parent->color = RBTREE_RED;
+//       x->parent->color = RBTREE_RED;
+//       // left_rotate(t, sibling->parent);
+//       left_rotate(t, x->parent);
+//       sibling = x->parent->right;
+//     }
+//     // case2, sibling is black
+//     if(sibling->left->color == RBTREE_BLACK 
+//       && sibling->right->color == RBTREE_BLACK){
+//         sibling->color = RBTREE_RED;
+//         //----------------------------------
+//         x = x->parent;
+//         //----------------------------------
+//       }
+//     else{
+//       if(sibling->right->color == RBTREE_BLACK){
+//         sibling->left->color = RBTREE_BLACK;
+//         sibling->color = RBTREE_RED;
+//         // right_rotate(t, sibling->parent);
+//         right_rotate(t, sibling);
+//         sibling = x->parent->right;
+//       }
+//       sibling->color = x->parent->color;
+//       x->right->color = RBTREE_BLACK;
+//       sibling->right->color = RBTREE_BLACK;
+//       left_rotate(t, x->parent);
+//       x = t->root;
+//     }
+//   }
+  
+//   // doubly node is right
+//   else {
+//     sibling = x->parent->left;
+//     // case1, sibling is red
+//     // change color and rotate
+//     if(sibling->color == RBTREE_RED){
+//       sibling->color = RBTREE_BLACK;
+//       // sibling->parent->color = RBTREE_RED;
+//       x->parent->color = RBTREE_RED;
+//       // left_rotate(t, sibling->parent);
+//       right_rotate(t, x->parent);
+//       sibling = x->parent->left;
+//     }
+//     // case2, sibling is black
+//     if(sibling->right->color == RBTREE_BLACK 
+//       && sibling->left->color == RBTREE_BLACK){
+//         sibling->color = RBTREE_RED;
+//         //----------------------------------
+//         x = x->parent;
+//         //----------------------------------
+//       }
+//     else{
+//       if(sibling->left->color == RBTREE_BLACK){
+//         sibling->right->color = RBTREE_BLACK;
+//         sibling->color = RBTREE_RED;
+//         // right_rotate(t, sibling->parent);
+//         left_rotate(t, sibling);
+//         sibling = x->parent->left;
+//       }
+//       sibling->color = x->parent->color;
+//       x->left->color = RBTREE_BLACK;
+//       sibling->left->color = RBTREE_BLACK;
+//       right_rotate(t, x->parent);
+//       x = t->root;
+//     }
+//   }
+
+//   x->color = RBTREE_BLACK;
+// }
 //node_t* sibling;
 // if(x->parent == t->nil){
 //   x = t->root;
@@ -486,19 +565,34 @@ void rb_deletion_fixup(rbtree *t, node_t* x){
 //     }
 //   }
 // }
+int inorder(const rbtree *t, node_t *node, key_t *arr, int idx, const size_t n) {
+  if (node == t->nil || idx >= n) {
+    return idx;
+  }
+  idx = inorder(t, node->left, arr, idx, n);
+  if (idx < n) {
+    arr[idx++] = node->key;
+  }
+  idx = inorder(t, node->right, arr, idx, n);
+  return idx;
+}
 
 int rbtree_to_array(const rbtree *t, key_t *arr, const size_t n) {
   // TODO: implement to_array
+  if (t == NULL || arr == NULL) return -1; // 예외 처리
+  inorder(t, t->root, arr, 0, n);
   return 0;
 }
 
-void print_tree(rbtree *t, node_t* node){
-  if(node == t->nil) return;
 
-  printf("%d, %s, parent = %d\n", node->key, node->color == RBTREE_BLACK ? "BLACK" : "RED", node->parent->key);
-  print_tree(t, node->left);
-  print_tree(t, node->right);
-}
+
+// void print_tree(rbtree *t, node_t* node){
+//   if(node == t->nil) return;
+
+//   printf("%d, %s, parent = %d\n", node->key, node->color == RBTREE_BLACK ? "BLACK" : "RED", node->parent->key);
+//   print_tree(t, node->left);
+//   print_tree(t, node->right);
+// }
 // int main() {
 //   rbtree *t = new_rbtree();
 //   //10, 5, 8, 34, 67, 23, 156, 24, 2, 12
@@ -512,7 +606,12 @@ void print_tree(rbtree *t, node_t* node){
 //   rbtree_insert(t, 24);
 //   rbtree_insert(t, 2);
 //   rbtree_insert(t, 12);
-//   node_t * rm_node = rbtree_find(t, 24);
+//   rbtree_insert(t, 24);
+//   rbtree_insert(t, 36);
+//   rbtree_insert(t, 990);
+//   rbtree_insert(t, 25);
+  
+//   node_t * rm_node = rbtree_find(t, 25);
 //   // printf("find_item = %d ", rm_node->key);
 
 //   rbtree_erase(t, rm_node);
