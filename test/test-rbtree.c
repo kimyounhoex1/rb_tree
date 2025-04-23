@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define SENTINEL
+// #define SENTINEL
 
 // new_rbtree should return rbtree struct with null root node
 void test_init(void)

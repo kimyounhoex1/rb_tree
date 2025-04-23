@@ -336,9 +336,11 @@ void rb_deletion_fixup(rbtree *t, node_t *x) {
 // void rb_deletion_fixup(rbtree *t, node_t* x){
 //   node_t* sibling;
 //   // if(x->parent == t->nil){
+          //
 //   //   x = t->root;
 //   // }
 //   if(x == t->root){
+//     x->color = RBTREE_BLACK;
 //     return;
 //   }
 //   // doubly node is left
@@ -439,9 +441,9 @@ void rb_deletion_fixup(rbtree *t, node_t *x) {
 //     sibling = x->parent->right;
 //   }
 //   // case2, sibling is black
-//   if(sibling->color == RBTREE_BLACK){
-//     if(sibling->left->color == RBTREE_BLACK 
-//       && sibling->right->color == RBTREE_BLACK){
+  // if(sibling->color == RBTREE_BLACK){
+  //   if(sibling->left->color == RBTREE_BLACK 
+  //     && sibling->right->color == RBTREE_BLACK){
 //         sibling->color = RBTREE_RED;
 //         //----
 //         x = x->parent;
